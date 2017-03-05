@@ -1,0 +1,20 @@
+EMove. Exp  ::= Exp "moved" Exp1 ;
+EMove. Exp  ::= Exp "journeyed" Exp1 ;
+EMove. Exp  ::= Exp "went" Exp1 ;
+ETook. Exp  ::= Exp "took" Exp ;
+ETook. Exp  ::= Exp "got" Exp ;
+ETook. Exp  ::= Exp "picked up" Exp ;
+EDrop. Exp  ::= Exp "dropped" Exp ;
+EGive. Exp  ::= Exp "handed" Exp "to" Exp ;
+
+ELocation. Exp1 ::= "in the" Exp1 ;
+ELocation. Exp1 ::= "to the" Exp1 ;
+EItem. Exp1 ::= "the" Exp ;
+EIs. Exp ::= "Is" Exp Exp "?" ;
+EWhereIs. Exp ::= "Where is" Exp "?" ;
+
+EString. Exp1 ::= Ident ;
+
+
+
+coercions Exp 2 ;
