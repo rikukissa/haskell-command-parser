@@ -1,0 +1,9 @@
+*.hi
+*.o
+*.bak
+*.x
+*.txt
+Makefile
+Main
+.idea
+TestAI
