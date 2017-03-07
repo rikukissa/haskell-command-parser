@@ -15,12 +15,12 @@ type LocationName = String
 -- Todo get from Control.Lense
 (<&>) = flip fmap
 
-newtype Location = Location String deriving (Eq, Show)
+newtype Position = Position String deriving (Eq, Show)
 
 data PersonLocation
-  = Known Location
-  | OneOfTwo (Location, Location)
-  | NoLonger Location
+  = Known Position
+  | OneOfTwo (Position, Position)
+  | NoLonger Position
   deriving (Eq, Show)
 
 data Person = Person
@@ -58,7 +58,7 @@ chunk' (x:y:xs) =
 whereWasBefore :: State -> String -> String -> String
 whereWasBefore state personName locationName =
   let
-    location = (Known (Location locationName))
+    location = (Known (Position locationName))
     before =
       (findPerson state personName) <&>
       locations <&>
@@ -67,8 +67,8 @@ whereWasBefore state personName locationName =
       last
   in
     case before of
-      Just (Known (Location loc)) -> loc
-      Just (OneOfTwo ((Location loc), (Location loc2))) -> "either in " ++ loc ++ " or in " ++ loc2
+      Just (Known (Position loc)) -> loc
+      Just (OneOfTwo ((Position loc), (Position loc2))) -> "either in " ++ loc ++ " or in " ++ loc2
       Nothing -> "don't know"
 
 
@@ -77,7 +77,7 @@ whereWasAfter state personName locationName =
   let
     hasFuture future =
       if (length future) == 0 then Nothing else (Just future)
-    location = (Known (Location locationName))
+    location = (Known (Position locationName))
     future =
       (findPerson state personName) <&>
       locations <&>
@@ -87,8 +87,8 @@ whereWasAfter state personName locationName =
     next = (future >>= hasFuture) <&> head
   in
     case next of
-      Just (Known (Location loc)) -> loc
-      Just (OneOfTwo ((Location loc), (Location loc2))) -> "either in " ++ loc ++ " or in " ++ loc2
+      Just (Known (Position loc)) -> loc
+      Just (OneOfTwo ((Position loc), (Position loc2))) -> "either in " ++ loc ++ " or in " ++ loc2
       Nothing -> "don't know"
 
 howManyObjects :: State -> PersonName -> String
@@ -121,7 +121,7 @@ filterOutCancelling locations =
 isPersonLocation :: String -> Person -> String
 isPersonLocation locationName person =
   let
-    location = (Location locationName)
+    location = (Position locationName)
     prevLocations = filterOutCancelling $ locations person
     prevLocation = last prevLocations
     either l l2 =
@@ -149,9 +149,9 @@ whereIs state itemName =
     location = fmap iLocation existingItem
   in
     case location of
-      Just (OneOfTwo ((Location l), (Location l2))) ->
+      Just (OneOfTwo ((Position l), (Position l2))) ->
         "either in " ++ l ++ "or in" ++ l2
-      Just (Known (Location l)) ->
+      Just (Known (Position l)) ->
         l
       Nothing ->
         "don't know"
@@ -206,7 +206,7 @@ updatePerson state updatedPerson =
 handleMove :: State -> PersonName -> LocationName -> State
 handleMove state personName locationName =
   let
-    newLocation = Known (Location locationName)
+    newLocation = Known (Position locationName)
   in
     updateStateByMovement state personName newLocation
 
@@ -215,14 +215,14 @@ handleLeave state personName locationName =
   let
     person = getPerson state personName
     personWithUpdatedLocations =
-      fmap (\p -> p { locations = (locations p) ++ [(NoLonger (Location locationName))]}) person
+      fmap (\p -> p { locations = (locations p) ++ [(NoLonger (Position locationName))]}) person
   in
     fromMaybe state (fmap (updatePerson state) personWithUpdatedLocations)
 
 handleMoveToEither :: State -> PersonName -> LocationName -> LocationName -> State
 handleMoveToEither state personName locationName locationName2 =
   let
-    newLocation = OneOfTwo ((Location locationName), (Location locationName2))
+    newLocation = OneOfTwo ((Position locationName), (Position locationName2))
   in
     updateStateByMovement state personName newLocation
 
