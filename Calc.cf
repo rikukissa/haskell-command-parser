@@ -1,20 +1,32 @@
-EMove. Exp  ::= Exp "moved" Exp1 ;
-EMove. Exp  ::= Exp "journeyed" Exp1 ;
-EMove. Exp  ::= Exp "went" Exp1 ;
-ETook. Exp  ::= Exp "took" Exp ;
-ETook. Exp  ::= Exp "got" Exp ;
-ETook. Exp  ::= Exp "picked up" Exp ;
-EDrop. Exp  ::= Exp "dropped" Exp ;
-EGive. Exp  ::= Exp "handed" Exp "to" Exp ;
 
-ELocation. Exp1 ::= "in the" Exp1 ;
-ELocation. Exp1 ::= "to the" Exp1 ;
-EItem. Exp1 ::= "the" Exp ;
-EIs. Exp ::= "Is" Exp Exp "?" ;
-EWhereIs. Exp ::= "Where is" Exp "?" ;
+HowMany. Command ::= "How many objects is" EPerson "carrying ?" ;
+WhereIs. Command ::= "Where is" EItem "?" ;
+WhereWasBefore. Command ::= "Where was" EPerson "before" ELocation "?" ;
+WhereWasAfter. Command ::= "Where was" EPerson "after" ELocation "?" ;
+HowToGo. Command ::= "How do you go" ELocation ELocation "?" ;
+EitherIn. Command  ::= EPerson "is either" ELocation ELocation ;
 
-EString. Exp1 ::= Ident ;
+NoLongerIn. Command  ::= EPerson "is no longer" ELocation ;
 
+IsIn. Command ::= "Is" EPerson ELocation "?" ;
+Dropped. Command ::= EPerson "dropped" EItem ;
+Dropped. Command ::= EPerson "discarded" EItem ;
+Handed. Command ::= EPerson "handed" EItem "to" EPerson ;
+Move. Command  ::= EPerson "moved" ELocation ;
+Move. Command  ::= EPerson "journeyed" ELocation ;
+Move. Command  ::= EPerson "went" ELocation ;
+Move. Command  ::= EPerson "travelled" ELocation ;
+Move. Command  ::= EPerson "is" ELocation ;
+Took. Command  ::= EPerson "took" EItem ;
+Took. Command  ::= EPerson "got" EItem ;
+Took. Command  ::= EPerson "picked up" EItem ;
 
+ELocation. ELocation ::= "or the" Ident ;
+ELocation. ELocation ::= "to the" Ident ;
+ELocation. ELocation ::= "in the" Ident ;
+ELocation. ELocation ::= "from the" Ident ;
+ELocation. ELocation ::= "the" Ident ;
 
-coercions Exp 2 ;
+EItem. EItem ::= "the" Ident ;
+EPerson. EPerson ::= Ident ;
+
