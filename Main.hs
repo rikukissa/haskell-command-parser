@@ -3,9 +3,9 @@ module Main where
 import Data.List
 import Data.List.Split
 import Data.Maybe
-import LexCalc
-import ParCalc
-import AbsCalc
+import LexAI
+import ParAI
+import AbsAI
 import ErrM
 
 type PersonName = String
