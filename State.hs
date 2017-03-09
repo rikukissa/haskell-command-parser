@@ -1,17 +1,15 @@
 module State where
 
 import Data.List
-import Data.List.Split
 import Data.Maybe
-
-import AbsAI
+import Data.List.Split
 
 import Person
 import Item
 import Location
 import Utils
 
-type Direction = (String, EDirection, String)
+import AbsAI
 
 data MapPoint
   = End
@@ -29,54 +27,14 @@ data State = State
   , roomMap :: [Direction]
   } deriving (Show)
 
-flipDirection EWest = EEast
-flipDirection EEast = EWest
-flipDirection ESouth = ENorth
-flipDirection ENorth = ESouth
-
-directionName EWest = "west"
-directionName EEast = "east"
-directionName ESouth = "south"
-directionName ENorth = "north"
 
 storeDirection :: State -> String -> EDirection -> String -> State
 storeDirection state what direction from =
-  state { roomMap = (roomMap state) ++ [(what, direction, from)] }
+  state { roomMap = roomMap state ++ [(what, direction, from)] }
 
-isEntry target (from, direction, to) = from == target || to == target
-
-getPath :: [Direction] -> String -> String -> Maybe [EDirection]
-getPath [] _ _ = Nothing
-getPath roomMap from to =
-  let
-    targets = filter (isEntry from) roomMap
-    other = roomMap \\ targets
-    checkPath :: Direction -> Maybe [EDirection]
-    checkPath (f, d, t) =
-      let
-        direction = if f == from then (flipDirection d) else d
-        nextStart = if f == from then t else f
-      in
-        if f == to || t == to then
-          Just [direction]
-        else
-          ((++) [direction]) `fmap` (getPath other nextStart to)
-  in
-
-    if (length targets) == 0 then
-      Nothing
-    else
-      let
-        successes = (filter isJust (map checkPath targets))
-      in
-        if (length successes) == 0 then
-          Nothing
-        else
-          (head successes)
-
-
+howToGo :: State -> String -> String -> String
 howToGo state from to =
-  fromMaybe "don't know" $ fmap ((intercalate ", ") . (map directionName)) $ getPath (roomMap state) from to
+  maybe "don't know" (intercalate ", " . map directionName) $ getPath (roomMap state) from to
 
 findPerson :: State -> String -> Maybe Person
 findPerson state personName =
@@ -88,17 +46,17 @@ findPerson state personName =
 whereWasBefore :: State -> String -> String -> String
 whereWasBefore state personName locationName =
   let
-    location = (Known (Position locationName))
+    location = Known (Position locationName)
     before =
       last' =<<
       head `fmap`
-      (splitOn [location]) `fmap`
+      splitOn [location] `fmap`
       locations `fmap`
-      (findPerson state personName)
+      findPerson state personName
   in
     case before of
       Just (Known (Position loc)) -> loc
-      Just (OneOfTwo ((Position loc), (Position loc2))) -> "either in " ++ loc ++ " or in " ++ loc2
+      Just (OneOfTwo (Position loc, Position loc2)) -> "either in " ++ loc ++ " or in " ++ loc2
       _ -> "don't know"
 
 
@@ -106,19 +64,19 @@ whereWasAfter :: State -> String -> String -> String
 whereWasAfter state personName locationName =
   let
     hasFuture future =
-      if (length future) == 0 then Nothing else (Just future)
-    location = (Known (Position locationName))
+      if null future then Nothing else Just future
+    location = Known (Position locationName)
     future =
       last `fmap`
-      (splitOn [location]) `fmap`
+      splitOn [location] `fmap`
       locations `fmap`
-      (findPerson state personName)
+      findPerson state personName
 
     next = head `fmap` (future >>= hasFuture)
   in
     case next of
       Just (Known (Position loc)) -> loc
-      Just (OneOfTwo ((Position loc), (Position loc2))) -> "either in " ++ loc ++ " or in " ++ loc2
+      Just (OneOfTwo (Position loc, Position loc2)) -> "either in " ++ loc ++ " or in " ++ loc2
       Nothing -> "don't know"
 
 howManyObjects :: State -> PersonName -> String
@@ -127,8 +85,8 @@ howManyObjects state personName =
     allItems = items state
     allPeople = people state
     existingPerson = getPersonWithName personName allPeople
-    hasItem = fmap (((==) personName) . name)
-    itemsHolding = fmap (\_ -> filter ((fromMaybe False) . hasItem . iPerson) allItems) existingPerson
+    hasItem = fmap ((==) personName . name)
+    itemsHolding = fmap (\_ -> filter (fromMaybe False . hasItem . iPerson) allItems) existingPerson
     itemsLength = fmap (show . length) itemsHolding
   in
     fromMaybe "don't know" itemsLength
@@ -137,18 +95,18 @@ isPersonIn :: State -> PersonName -> LocationName -> String
 isPersonIn state personName locationName =
   let
     existingPerson = getPersonWithName personName (people state)
-    isThere = (isPersonInLocation locationName) `fmap` existingPerson
+    isThere = isPersonInLocation locationName `fmap` existingPerson
   in
     fromMaybe "maybe" isThere
 
 whereIsItem :: State -> ItemName -> String
 whereIsItem state itemName =
   let
-    existingItem = find (((==) itemName) . iName) (items state)
+    existingItem = find ((==) itemName . iName) (items state)
     location = fmap iLocation existingItem
   in
     case location of
-      Just (OneOfTwo ((Position l), (Position l2))) ->
+      Just (OneOfTwo (Position l, Position l2)) ->
         "either in " ++ l ++ "or in" ++ l2
       Just (Known (Position l)) ->
         l
@@ -158,9 +116,9 @@ whereIsItem state itemName =
 updateStateByMovement :: State -> PersonName -> Location -> State
 updateStateByMovement state personName newLocation =
   let
-    isRightPerson = (((==) personName) . name)
+    isRightPerson = ((==) personName . name)
     existingPerson = find isRightPerson (people state)
-    updatedPersonM = (addLocation newLocation) `fmap` existingPerson
+    updatedPersonM = addLocation newLocation `fmap` existingPerson
     updatedPerson = fromMaybe (Person personName [newLocation]) updatedPersonM
   in
     updatePerson state updatedPerson
@@ -168,34 +126,34 @@ updateStateByMovement state personName newLocation =
 getPerson :: State -> PersonName -> Maybe Person
 getPerson state personName =
   let
-    isRightPerson = (((==) personName) . name)
+    isRightPerson = ((==) personName . name)
   in
     find isRightPerson (people state)
 
 updatePerson :: State -> Person -> State
 updatePerson state updatedPerson =
   let
-    isRightPerson = (((==) (name updatedPerson)) . name)
+    isRightPerson = (==) (name updatedPerson) . name
     existingPerson = find isRightPerson (people state)
     updateItem item =
       let
-        needsUpdate = fromMaybe False (fmap isRightPerson (iPerson item))
+        needsUpdate = maybe False isRightPerson (iPerson item)
       in
         if needsUpdate then
           item
-          { iPerson = Just updatedPerson
-          , iLocation = ((last . locations) updatedPerson)
-          }
+            { iPerson = Just updatedPerson
+            , iLocation = (last . locations) updatedPerson
+            }
         else item
   in
     case existingPerson of
       Just p ->
         state
-          { people = (delete p (people state)) ++ [updatedPerson]
+          { people = delete p (people state) ++ [updatedPerson]
           , items = map updateItem (items state)
           }
       Nothing ->
-        state { people = (people state) ++ [updatedPerson] }
+        state { people = people state ++ [updatedPerson] }
 
 handleMove :: State -> PersonName -> LocationName -> State
 handleMove state personName locationName =
@@ -209,29 +167,28 @@ handleLeave state personName locationName =
   let
     person = getPerson state personName
     personWithUpdatedLocations =
-      fmap (\p -> p { locations = (locations p) ++ [(NoLonger (Position locationName))]}) person
+      fmap (\p -> p { locations = locations p ++ [NoLonger (Position locationName)]}) person
   in
-    fromMaybe state (fmap (updatePerson state) personWithUpdatedLocations)
+    maybe state (updatePerson state) personWithUpdatedLocations
 
 handleMoveToEither :: State -> PersonName -> LocationName -> LocationName -> State
 handleMoveToEither state personName locationName locationName2 =
   let
-    newLocation = OneOfTwo ((Position locationName), (Position locationName2))
+    newLocation = OneOfTwo (Position locationName, Position locationName2)
   in
     updateStateByMovement state personName newLocation
-
 
 handleTake :: State -> PersonName -> ItemName -> State
 handleTake state personName itemName =
   let
     existingPerson = getPersonWithName personName (people state)
-    existingItem = find (((==) itemName) . iName) (items state)
+    existingItem = find ((==) itemName . iName) (items state)
   in
     case (existingPerson, existingItem) of
-      ((Just person), (Just item)) ->
-        state { items = (delete item (items state)) ++ [(Item itemName ((last . locations) person) existingPerson)] }
-      ((Just person), Nothing) ->
-        state { items = (items state) ++ [(Item itemName ((last . locations) person) existingPerson)] }
+      (Just person, Just item) ->
+        state { items = delete item (items state) ++ [Item itemName ((last . locations) person) existingPerson] }
+      (Just person, Nothing) ->
+        state { items = items state ++ [Item itemName ((last . locations) person) existingPerson] }
       _ ->
         state
 
@@ -245,14 +202,14 @@ handleGive state personName itemName personName2 =
 handleDrop :: State -> PersonName -> ItemName -> State
 handleDrop state personName itemName =
   let
-    isRightPerson = (((==) personName) . name)
+    isRightPerson = (==) personName . name
     existingPerson = getPersonWithName personName (people state)
-    existingItem = find (((==) itemName) . iName) (items state)
+    existingItem = find ((==) itemName . iName) (items state)
     updateItem item =
       let
         needsUpdate =
-          (iName item) == itemName &&
-          fromMaybe False (fmap isRightPerson (iPerson item))
+          iName item == itemName &&
+          maybe False isRightPerson (iPerson item)
       in
         if needsUpdate then
           item
@@ -261,7 +218,7 @@ handleDrop state personName itemName =
         else item
   in
     case (existingPerson, existingItem) of
-      ((Just person), (Just item)) ->
+      (Just person, Just item) ->
         state
         { items = map updateItem (items state)
         }

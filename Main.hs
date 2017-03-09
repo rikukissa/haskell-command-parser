@@ -1,5 +1,7 @@
 module Main where
 
+import Control.Monad
+
 import LexAI
 import ParAI
 import AbsAI
@@ -32,36 +34,29 @@ update command state = case command of
 
 loop state = do
   line <- getLine
-  if null line then return () else do
-    let Ok e = pCommand (myLexer line) in case e of
-      WhereIs (EItem (Ident itemName)) -> do
-        putStrLn $ whereIsItem state itemName
-        loop state
-
-      IsIn (EPerson (Ident personName)) (ELocation (Ident locationName)) -> do
-        putStrLn $ isPersonIn state personName locationName
-        loop state
-
-      HowMany (EPerson (Ident personName)) -> do
-        putStrLn $ howManyObjects state personName
-        loop state
-
-      WhereWasBefore (EPerson (Ident personName)) (ELocation (Ident locationName)) -> do
-        putStrLn $ whereWasBefore state personName locationName
-        loop state
-
-      WhereWasAfter (EPerson (Ident personName)) (ELocation (Ident locationName)) -> do
-        putStrLn $ whereWasAfter state personName locationName
-        loop state
-
-      HowToGo (ELocation (Ident locationName)) (ELocation (Ident locationName2)) -> do
-        putStrLn $ howToGo state locationName locationName2
-        loop state
-
-      _ -> do
-        let
-          newState = update e state
+  unless (null line) $
+    let Ok e = pCommand (myLexer line) in
+      case e of
+        WhereIs (EItem (Ident itemName)) -> do
+          putStrLn $ whereIsItem state itemName
+          loop state
+        IsIn (EPerson (Ident personName)) (ELocation (Ident locationName)) -> do
+          putStrLn $ isPersonIn state personName locationName
+          loop state
+        HowMany (EPerson (Ident personName)) -> do
+          putStrLn $ howManyObjects state personName
+          loop state
+        WhereWasBefore (EPerson (Ident personName)) (ELocation (Ident locationName)) -> do
+          putStrLn $ whereWasBefore state personName locationName
+          loop state
+        WhereWasAfter (EPerson (Ident personName)) (ELocation (Ident locationName)) -> do
+          putStrLn $ whereWasAfter state personName locationName
+          loop state
+        HowToGo (ELocation (Ident locationName)) (ELocation (Ident locationName2)) -> do
+          putStrLn $ howToGo state locationName locationName2
+          loop state
+        _ -> do
+        let newState = update e state
         loop newState
 
-main = do
-  loop (State [] [] [])
+main = loop (State [] [] [])

@@ -14,18 +14,19 @@ data Person = Person
   } deriving (Show, Eq)
 
 
--- getPersonWithName :: S -> String -> Maybe Person
-getPersonWithName personName = find (((==) personName) . name)
+getPersonWithName :: String -> [Person] -> Maybe Person
+getPersonWithName personName = find ((==) personName . name)
 
+addLocation :: Location -> Person -> Person
 addLocation location person =
   person
-  { locations = (locations person) ++ [location]
+  { locations = locations person ++ [location]
   }
 
 isPersonInLocation :: String -> Person -> String
 isPersonInLocation locationName person =
   let
-    location = (Position locationName)
+    location = Position locationName
     prevLocations = lastN 3 $ locations person
     either l l2 =
       if l == location || l2 == location then
@@ -33,17 +34,17 @@ isPersonInLocation locationName person =
       else "no"
   in
     case prevLocations of
-      [(OneOfTwo (l, l2)), (Known loc2), (NoLonger loc3)] ->
+      [OneOfTwo (l, l2), Known loc2, NoLonger loc3] ->
         if loc2 == loc3 && (l == location || l2 == location) then
           "maybe"
         else
           "no"
-      [(Known loc), (Known loc2), (NoLonger loc3)] ->
+      [Known loc, Known loc2, NoLonger loc3] ->
         if loc2 == loc3 && loc == location then
           "maybe"
         else
           "no"
-      history -> case (last' history) of
+      history -> case last' history of
         Just (OneOfTwo (l, l2)) -> either l l2
         Just (Known l) -> boolToAnswer $ l == location
         _ -> "no"
