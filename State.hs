@@ -4,15 +4,79 @@ import Data.List
 import Data.List.Split
 import Data.Maybe
 
+import AbsAI
+
 import Person
 import Item
 import Location
+import Utils
+
+type Direction = (String, EDirection, String)
+
+data MapPoint
+  = End
+  | Node
+    { nodeName :: String
+    , north :: MapPoint
+    , east :: MapPoint
+    , south :: MapPoint
+    , west :: MapPoint
+    } deriving (Show)
 
 data State = State
   { people :: [Person]
   , items :: [Item]
+  , roomMap :: [Direction]
   } deriving (Show)
 
+flipDirection EWest = EEast
+flipDirection EEast = EWest
+flipDirection ESouth = ENorth
+flipDirection ENorth = ESouth
+
+directionName EWest = "west"
+directionName EEast = "east"
+directionName ESouth = "south"
+directionName ENorth = "north"
+
+storeDirection :: State -> String -> EDirection -> String -> State
+storeDirection state what direction from =
+  state { roomMap = (roomMap state) ++ [(what, direction, from)] }
+
+isEntry target (from, direction, to) = from == target || to == target
+
+getPath :: [Direction] -> String -> String -> Maybe [EDirection]
+getPath [] _ _ = Nothing
+getPath roomMap from to =
+  let
+    targets = filter (isEntry from) roomMap
+    other = roomMap \\ targets
+    checkPath :: Direction -> Maybe [EDirection]
+    checkPath (f, d, t) =
+      let
+        direction = if f == from then (flipDirection d) else d
+        nextStart = if f == from then t else f
+      in
+        if f == to || t == to then
+          Just [direction]
+        else
+          ((++) [direction]) `fmap` (getPath other nextStart to)
+  in
+
+    if (length targets) == 0 then
+      Nothing
+    else
+      let
+        successes = (filter isJust (map checkPath targets))
+      in
+        if (length successes) == 0 then
+          Nothing
+        else
+          (head successes)
+
+
+howToGo state from to =
+  fromMaybe "don't know" $ fmap ((intercalate ", ") . (map directionName)) $ getPath (roomMap state) from to
 
 findPerson :: State -> String -> Maybe Person
 findPerson state personName =

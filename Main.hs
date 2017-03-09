@@ -27,6 +27,8 @@ update command state = case command of
   NoLongerIn (EPerson (Ident personName)) (ELocation (Ident locationName)) ->
     handleLeave state personName locationName
 
+  IsOf (ELocation (Ident locationName)) direction (ELocation (Ident locationName2)) ->
+    storeDirection state locationName direction locationName2
 
 loop state = do
   line <- getLine
@@ -51,8 +53,13 @@ loop state = do
       WhereWasAfter (EPerson (Ident personName)) (ELocation (Ident locationName)) -> do
         putStrLn $ whereWasAfter state personName locationName
         loop state
+
+      HowToGo (ELocation (Ident locationName)) (ELocation (Ident locationName2)) -> do
+        putStrLn $ howToGo state locationName locationName2
+        loop state
+
       _ -> do
         loop $ update e state
 
 main = do
-  loop (State [] [])
+  loop (State [] [] [])

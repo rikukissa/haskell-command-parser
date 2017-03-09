@@ -11,6 +11,7 @@ import ErrM
 %name pCommand Command
 %name pELocation ELocation
 %name pEItem EItem
+%name pEDirection EDirection
 %name pEPerson EPerson
 -- no lexer declaration
 %monad { Err } { thenM } { returnM }
@@ -19,36 +20,42 @@ import ErrM
   '?' { PT _ (TS _ 1) }
   'How' { PT _ (TS _ 2) }
   'Is' { PT _ (TS _ 3) }
-  'Where' { PT _ (TS _ 4) }
-  'after' { PT _ (TS _ 5) }
-  'before' { PT _ (TS _ 6) }
-  'carrying' { PT _ (TS _ 7) }
-  'discarded' { PT _ (TS _ 8) }
-  'do' { PT _ (TS _ 9) }
-  'dropped' { PT _ (TS _ 10) }
-  'either' { PT _ (TS _ 11) }
-  'from' { PT _ (TS _ 12) }
-  'go' { PT _ (TS _ 13) }
-  'got' { PT _ (TS _ 14) }
-  'handed' { PT _ (TS _ 15) }
-  'in' { PT _ (TS _ 16) }
-  'is' { PT _ (TS _ 17) }
-  'journeyed' { PT _ (TS _ 18) }
-  'longer' { PT _ (TS _ 19) }
-  'many' { PT _ (TS _ 20) }
-  'moved' { PT _ (TS _ 21) }
-  'no' { PT _ (TS _ 22) }
-  'objects' { PT _ (TS _ 23) }
-  'or' { PT _ (TS _ 24) }
-  'picked' { PT _ (TS _ 25) }
-  'the' { PT _ (TS _ 26) }
-  'to' { PT _ (TS _ 27) }
-  'took' { PT _ (TS _ 28) }
-  'travelled' { PT _ (TS _ 29) }
-  'up' { PT _ (TS _ 30) }
-  'was' { PT _ (TS _ 31) }
-  'went' { PT _ (TS _ 32) }
-  'you' { PT _ (TS _ 33) }
+  'The' { PT _ (TS _ 4) }
+  'Where' { PT _ (TS _ 5) }
+  'after' { PT _ (TS _ 6) }
+  'before' { PT _ (TS _ 7) }
+  'carrying' { PT _ (TS _ 8) }
+  'discarded' { PT _ (TS _ 9) }
+  'do' { PT _ (TS _ 10) }
+  'dropped' { PT _ (TS _ 11) }
+  'east' { PT _ (TS _ 12) }
+  'either' { PT _ (TS _ 13) }
+  'from' { PT _ (TS _ 14) }
+  'go' { PT _ (TS _ 15) }
+  'got' { PT _ (TS _ 16) }
+  'handed' { PT _ (TS _ 17) }
+  'in' { PT _ (TS _ 18) }
+  'is' { PT _ (TS _ 19) }
+  'journeyed' { PT _ (TS _ 20) }
+  'longer' { PT _ (TS _ 21) }
+  'many' { PT _ (TS _ 22) }
+  'moved' { PT _ (TS _ 23) }
+  'no' { PT _ (TS _ 24) }
+  'north' { PT _ (TS _ 25) }
+  'objects' { PT _ (TS _ 26) }
+  'of' { PT _ (TS _ 27) }
+  'or' { PT _ (TS _ 28) }
+  'picked' { PT _ (TS _ 29) }
+  'south' { PT _ (TS _ 30) }
+  'the' { PT _ (TS _ 31) }
+  'to' { PT _ (TS _ 32) }
+  'took' { PT _ (TS _ 33) }
+  'travelled' { PT _ (TS _ 34) }
+  'up' { PT _ (TS _ 35) }
+  'was' { PT _ (TS _ 36) }
+  'went' { PT _ (TS _ 37) }
+  'west' { PT _ (TS _ 38) }
+  'you' { PT _ (TS _ 39) }
 
 L_ident  { PT _ (TV $$) }
 
@@ -77,14 +84,22 @@ Command : 'How' 'many' 'objects' 'is' EPerson 'carrying' '?' { AbsAI.HowMany $5 
         | EPerson 'took' EItem { AbsAI.Took $1 $3 }
         | EPerson 'got' EItem { AbsAI.Took $1 $3 }
         | EPerson 'picked' 'up' EItem { AbsAI.Took $1 $4 }
+        | ELocation EDirection ELocation { AbsAI.IsOf $1 $2 $3 }
 ELocation :: { ELocation }
 ELocation : 'or' 'the' Ident { AbsAI.ELocation $3 }
           | 'to' 'the' Ident { AbsAI.ELocation $3 }
           | 'in' 'the' Ident { AbsAI.ELocation $3 }
+          | 'of' 'the' Ident { AbsAI.ELocation $3 }
           | 'from' 'the' Ident { AbsAI.ELocation $3 }
           | 'the' Ident { AbsAI.ELocation $2 }
+          | 'The' Ident 'is' { AbsAI.ELocation $2 }
 EItem :: { EItem }
 EItem : 'the' Ident { AbsAI.EItem $2 }
+EDirection :: { EDirection }
+EDirection : 'west' 'of' { AbsAI.EWest }
+           | 'east' 'of' { AbsAI.EEast }
+           | 'north' 'of' { AbsAI.ENorth }
+           | 'south' 'of' { AbsAI.ESouth }
 EPerson :: { EPerson }
 EPerson : Ident { AbsAI.EPerson $1 }
 {

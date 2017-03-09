@@ -26,12 +26,19 @@ transCommand x = case x of
   Handed eperson1 eitem eperson2 -> failure x
   Move eperson elocation -> failure x
   Took eperson eitem -> failure x
+  IsOf elocation1 edirection elocation2 -> failure x
 transELocation :: ELocation -> Result
 transELocation x = case x of
   ELocation ident -> failure x
 transEItem :: EItem -> Result
 transEItem x = case x of
   EItem ident -> failure x
+transEDirection :: EDirection -> Result
+transEDirection x = case x of
+  EWest -> failure x
+  EEast -> failure x
+  ENorth -> failure x
+  ESouth -> failure x
 transEPerson :: EPerson -> Result
 transEPerson x = case x of
   EPerson ident -> failure x

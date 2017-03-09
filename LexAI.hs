@@ -108,7 +108,7 @@ eitherResIdent tv s = treeFind resWords
                               | s == a = t
 
 resWords :: BTree
-resWords = b "is" 17 (b "do" 9 (b "after" 5 (b "Is" 3 (b "How" 2 (b "?" 1 N N) N) (b "Where" 4 N N)) (b "carrying" 7 (b "before" 6 N N) (b "discarded" 8 N N))) (b "go" 13 (b "either" 11 (b "dropped" 10 N N) (b "from" 12 N N)) (b "handed" 15 (b "got" 14 N N) (b "in" 16 N N)))) (b "the" 26 (b "no" 22 (b "many" 20 (b "longer" 19 (b "journeyed" 18 N N) N) (b "moved" 21 N N)) (b "or" 24 (b "objects" 23 N N) (b "picked" 25 N N))) (b "up" 30 (b "took" 28 (b "to" 27 N N) (b "travelled" 29 N N)) (b "went" 32 (b "was" 31 N N) (b "you" 33 N N))))
+resWords = b "journeyed" 20 (b "do" 10 (b "Where" 5 (b "Is" 3 (b "How" 2 (b "?" 1 N N) N) (b "The" 4 N N)) (b "carrying" 8 (b "before" 7 (b "after" 6 N N) N) (b "discarded" 9 N N))) (b "go" 15 (b "either" 13 (b "east" 12 (b "dropped" 11 N N) N) (b "from" 14 N N)) (b "in" 18 (b "handed" 17 (b "got" 16 N N) N) (b "is" 19 N N)))) (b "south" 30 (b "north" 25 (b "moved" 23 (b "many" 22 (b "longer" 21 N N) N) (b "no" 24 N N)) (b "or" 28 (b "of" 27 (b "objects" 26 N N) N) (b "picked" 29 N N))) (b "up" 35 (b "took" 33 (b "to" 32 (b "the" 31 N N) N) (b "travelled" 34 N N)) (b "west" 38 (b "went" 37 (b "was" 36 N N) N) (b "you" 39 N N))))
    where b s n = let bs = id s
                   in B bs (TS bs n)
 

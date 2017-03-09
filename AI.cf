@@ -20,13 +20,20 @@ Move. Command  ::= EPerson "is" ELocation ;
 Took. Command  ::= EPerson "took" EItem ;
 Took. Command  ::= EPerson "got" EItem ;
 Took. Command  ::= EPerson "picked up" EItem ;
+IsOf. Command  ::= ELocation EDirection ELocation ;
 
 ELocation. ELocation ::= "or the" Ident ;
 ELocation. ELocation ::= "to the" Ident ;
 ELocation. ELocation ::= "in the" Ident ;
+ELocation. ELocation ::= "of the" Ident ;
 ELocation. ELocation ::= "from the" Ident ;
 ELocation. ELocation ::= "the" Ident ;
+ELocation. ELocation ::= "The" Ident "is" ;
 
 EItem. EItem ::= "the" Ident ;
+EWest. EDirection ::= "west of";
+EEast. EDirection ::= "east of";
+ENorth. EDirection ::= "north of";
+ESouth. EDirection ::= "south of";
 EPerson. EPerson ::= Ident ;
 

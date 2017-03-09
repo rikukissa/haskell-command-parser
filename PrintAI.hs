@@ -97,6 +97,7 @@ instance Print Command where
     Handed eperson1 eitem eperson2 -> prPrec i 0 (concatD [prt 0 eperson1, doc (showString "handed"), prt 0 eitem, doc (showString "to"), prt 0 eperson2])
     Move eperson elocation -> prPrec i 0 (concatD [prt 0 eperson, doc (showString "moved"), prt 0 elocation])
     Took eperson eitem -> prPrec i 0 (concatD [prt 0 eperson, doc (showString "took"), prt 0 eitem])
+    IsOf elocation1 edirection elocation2 -> prPrec i 0 (concatD [prt 0 elocation1, prt 0 edirection, prt 0 elocation2])
 
 instance Print ELocation where
   prt i e = case e of
@@ -105,6 +106,13 @@ instance Print ELocation where
 instance Print EItem where
   prt i e = case e of
     EItem id -> prPrec i 0 (concatD [doc (showString "the"), prt 0 id])
+
+instance Print EDirection where
+  prt i e = case e of
+    EWest -> prPrec i 0 (concatD [doc (showString "west"), doc (showString "of")])
+    EEast -> prPrec i 0 (concatD [doc (showString "east"), doc (showString "of")])
+    ENorth -> prPrec i 0 (concatD [doc (showString "north"), doc (showString "of")])
+    ESouth -> prPrec i 0 (concatD [doc (showString "south"), doc (showString "of")])
 
 instance Print EPerson where
   prt i e = case e of

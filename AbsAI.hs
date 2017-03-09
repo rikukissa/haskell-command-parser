@@ -21,12 +21,16 @@ data Command
     | Handed EPerson EItem EPerson
     | Move EPerson ELocation
     | Took EPerson EItem
+    | IsOf ELocation EDirection ELocation
   deriving (Eq, Ord, Show, Read)
 
 data ELocation = ELocation Ident
   deriving (Eq, Ord, Show, Read)
 
 data EItem = EItem Ident
+  deriving (Eq, Ord, Show, Read)
+
+data EDirection = EWest | EEast | ENorth | ESouth
   deriving (Eq, Ord, Show, Read)
 
 data EPerson = EPerson Ident
