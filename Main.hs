@@ -59,7 +59,9 @@ loop state = do
         loop state
 
       _ -> do
-        loop $ update e state
+        let
+          newState = update e state
+        loop newState
 
 main = do
   loop (State [] [] [])

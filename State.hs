@@ -90,7 +90,7 @@ whereWasBefore state personName locationName =
   let
     location = (Known (Position locationName))
     before =
-      last `fmap`
+      last' =<<
       head `fmap`
       (splitOn [location]) `fmap`
       locations `fmap`
@@ -99,7 +99,7 @@ whereWasBefore state personName locationName =
     case before of
       Just (Known (Position loc)) -> loc
       Just (OneOfTwo ((Position loc), (Position loc2))) -> "either in " ++ loc ++ " or in " ++ loc2
-      Nothing -> "don't know"
+      _ -> "don't know"
 
 
 whereWasAfter :: State -> String -> String -> String
@@ -250,7 +250,9 @@ handleDrop state personName itemName =
     existingItem = find (((==) itemName) . iName) (items state)
     updateItem item =
       let
-        needsUpdate = fromMaybe False (fmap isRightPerson (iPerson item))
+        needsUpdate =
+          (iName item) == itemName &&
+          fromMaybe False (fmap isRightPerson (iPerson item))
       in
         if needsUpdate then
           item
